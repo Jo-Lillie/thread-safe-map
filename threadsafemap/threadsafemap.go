@@ -26,6 +26,9 @@ type ThreadSafeMap struct {
 	threadsafe map[string]interface{}
 }
 
+
+var ErrNotFound = errors.New("key not found")
+
 /* New() will instantiate an instance of the threadsafe map struct that we can use */
 // create an instance of threadsafemap and return it
 // New instance of threadsafemap
@@ -40,8 +43,9 @@ func New (inputThreadsafemap map[string]interface{}) ThreadSafeMap { // might ha
 func (r *ThreadSafeMap) Read(key string) (interface{}, error) { 
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
+
 	if _, ok := r.threadsafe[key]; !ok {
-		return "", errors.New("could not find the word you were looking for") // <- create var ErrNotFound = 
+		return "", ErrNotFound 
 	}	
 	return r.threadsafe[key], nil
 }
@@ -54,3 +58,8 @@ func (w *ThreadSafeMap) Write(key string, value interface{}) interface{} {
 	w.threadsafe[key] = value
 	return ""
 }
+
+/* add a delete function to delete a key-value pair */
+
+/* add exists function - external could ask do you have this key 
+this will be a bool */
