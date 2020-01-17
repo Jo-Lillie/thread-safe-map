@@ -12,6 +12,8 @@ type ThreadSafeWrapper interface {
 	// empty interface - can hold any data and work with any type
 	Read(string) interface{}
 	Write(string, interface{})
+	Exist(string) interface{}
+	Delete(string)
 }
 
 /* the primary job of an interface is to provide only method signatures
@@ -26,10 +28,13 @@ type ThreadSafeMap struct {
 	threadsafe map[string]interface{}
 }
 
+
+var ErrNotFound = errors.New("key not found")
+
 /* New() will instantiate an instance of the threadsafe map struct that we can use */
 // create an instance of threadsafemap and return it
 // New instance of threadsafemap
-func New (inputThreadsafemap map[string]interface{}) ThreadSafeMap { // might have to add error <- ?
+func New (inputThreadsafemap map[string]interface{}) ThreadSafeMap {
 	newMutex := sync.Mutex{}
 	// threadsafe := make(map[string]interface{}) /* threadsafe declared and not used */
 	return ThreadSafeMap{mutex: &newMutex, threadsafe: inputThreadsafemap}
@@ -40,8 +45,9 @@ func New (inputThreadsafemap map[string]interface{}) ThreadSafeMap { // might ha
 func (r *ThreadSafeMap) Read(key string) (interface{}, error) { 
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
+
 	if _, ok := r.threadsafe[key]; !ok {
-		return "", errors.New("could not find the word you were looking for") // <- create var ErrNotFound = 
+		return "", ErrNotFound 
 	}	
 	return r.threadsafe[key], nil
 }
@@ -53,4 +59,23 @@ func (w *ThreadSafeMap) Write(key string, value interface{}) interface{} {
 	defer w.mutex.Unlock()
 	w.threadsafe[key] = value
 	return ""
+}
+
+/* add exists function - external could ask do you have this key */
+func (e *ThreadSafeMap) Exists(key string) (interface{}, bool) { // return just bool?
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
+
+	if _, found := e.threadsafe[key]; !found {
+		return ErrNotFound, false
+	}
+	return e.threadsafe[key], true
+}
+
+/* add a delete function to delete a key-value pair */
+func (d *ThreadSafeMap) Delete(key string) {
+	// TODO - add a check to see if the key exists
+	d.mutex.Lock()
+	defer d.mutex.Unlock()
+	delete(d.threadsafe, key)
 }
