@@ -6,7 +6,6 @@ import (
 )
 
 func TestRead(t *testing.T) {
-
 	safeMap := threadsafemap.New(map[string]interface{}{"test": "this is a test"})
 
 	t.Run("known key", func(t *testing.T) {
@@ -28,7 +27,6 @@ func TestRead(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
-
 	safeMap := threadsafemap.New(map[string]interface{}{})
 
 	safeMap.Write("yes", "it worked")
@@ -40,23 +38,31 @@ func TestWrite(t *testing.T) {
 	}
 }
 
-// WIP
 func TestExists(t *testing.T) {
-	
 	safeMap := threadsafemap.New(map[string]interface{}{"test": "this is a test"})
-	safeMap.Exists("test")
-	safeMap.Exists("pink")
+	
+	t.Run("existing key", func(t *testing.T) { 
+		_, exists := safeMap.Exists("test")
+		if !exists {
+			t.Errorf("key doesn't exist")
+		}
+	})
+
+	t.Run("non-existing key", func(t *testing.T) {
+		_, exists := safeMap.Exists("purple")
+		if exists {
+			t.Errorf("key exists when it should not")
+		} 
+	})
 }
 
-// WIP
 func TestDelete(t *testing.T) {
-	item := "test"
-	safeMap := threadsafemap.New(map[string]interface{}{item: "test words"})
+	key := "test"
+	safeMap := threadsafemap.New(map[string]interface{}{key: "test words"})
+	safeMap.Delete(key)
 
-	safeMap.Delete(item)
-
-	// _, err := safeMap.Read(item)
-	// if err != ErrNotFound {
-	// 	t.Errorf("Expected %q to be deleted", item)
-	// }
+	_, err := safeMap.Read(key)
+	if err == nil {
+		t.Errorf("Expected %q to be deleted", key)
+	}
 }
