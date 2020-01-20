@@ -73,9 +73,12 @@ func (e *ThreadSafeMap) Exists(key string) (interface{}, bool) { // return just 
 }
 
 /* add a delete function to delete a key-value pair */
-func (d *ThreadSafeMap) Delete(key string) {
-	// TODO - add a check to see if the key exists
+func (d *ThreadSafeMap) Delete(key string) (error) {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
+	if _, found := d.threadsafe[key]; !found {
+		return ErrNotFound
+	}
 	delete(d.threadsafe, key)
+	return nil
 }
