@@ -42,14 +42,14 @@ func TestExists(t *testing.T) {
 	safeMap := threadsafemap.New(map[string]interface{}{"test": "this is a test"})
 	
 	t.Run("existing key", func(t *testing.T) { 
-		_, exists := safeMap.Exists("test")
+		exists := safeMap.Exists("test")
 		if !exists {
 			t.Errorf("key doesn't exist")
 		}
 	})
 
 	t.Run("non-existing key", func(t *testing.T) {
-		_, exists := safeMap.Exists("purple")
+		exists := safeMap.Exists("purple")
 		if exists {
 			t.Errorf("key exists when it should not")
 		} 
