@@ -1,0 +1,14 @@
+dist: xenial
+jobs:
+  include:
+  - env:
+    - GO111MODULE=on
+    stage: test
+    os: linux
+    language: go
+    go: '1.12'
+    cache:
+      directories:
+        - "$HOME/local"
+    script:
+      - go build .
